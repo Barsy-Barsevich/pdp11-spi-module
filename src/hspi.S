@@ -2,8 +2,8 @@
 # Hardware spi module
 #
 
-.globl ___sys_hspiex
-.type ___sys_hspiex, @function
+#.globl ___sys_hspiex
+#.type ___sys_hspiex, @function
 
 
 #================================================
@@ -34,12 +34,12 @@ internal_hspiex:
     movb    2(r3), r0               #
     rts     pc                      # return
 
-___sys_hspiex:
-    mov     r0, -(sp)               # save r0
-    mov     r3, -(sp)               # save r3
-    movb    12(sp), r0              # move argument to r0
-    mov     10(sp), r3              # preset mosiport address
-    jsr     pc, internal_hspiex
-    mov     (sp)+, r3               # load r3
-    add     2, sp                   # do not load r0
-    rts     pc                      # result in r0
+#___sys_hspiex:
+#    mov     r0, -(sp)               # save r0
+#    mov     r3, -(sp)               # save r3
+#    movb    12(sp), r0              # move argument to r0
+#    mov     10(sp), r3              # preset mosiport address
+#    jsr     pc, internal_hspiex
+#    mov     (sp)+, r3               # load r3
+#    add     2, sp                   # do not load r0
+#    rts     pc                      # result in r0
