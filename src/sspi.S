@@ -4,9 +4,13 @@
 
 .globl ___sys_sspiex
 .globl ___sys_sspisend_arr
+.globl ___sys_sspireceive_arr
+.globl ___sys_sspiex_arr
 
 .type ___sys_sspiex, @function
 .type ___sys_sspisend_arr, @function
+.type ___sys_sspireceive_arr, @function
+.type ___sys_sspiex_arr, @function
 
 
 #================================================
@@ -54,6 +58,7 @@ __sspiex_cycle:
 #
 # Inputs:
 # - R3: mosi-port address
+# - R4: array length
 # - R5: source array address
 #
 # Outputs: none
@@ -61,7 +66,53 @@ __sspiex_cycle:
 # Register usage: all
 #
 sspisend_arr:
-    
+    movb    (r5)+, r0
+    jsr     pc, internal_sspiex
+    sob     r4, sspisend_arr
+    rts     pc
+
+
+#
+# sspireceive_arr
+#
+# Inputs:
+# - R3: mosi-port address
+# - R4: array length
+# - R5: destination array address
+#
+# Outputs: none
+#
+# Register usage: all
+#
+sspireceive_arr:
+    mov     0xFFFF, r6
+sspireceive_arr_1:
+    mov     r6, r0
+    jsr     pc, internal_sspiex
+    movb    r0, (r5)+
+    sob     r4, sspireceive_arr_1
+    rts     pc
+
+
+#
+# sspiex_arr
+#
+# Inputs:
+# - R3: mosi-port address
+# - R4: array length
+# - R5: source array address
+# - R6: destination array address
+#
+# Outputs: none
+#
+# Register usage: all
+#
+sspiex_arr:
+    movb    (r5)+, r0
+    jsr     pc, internal_sspiex
+    movb    r0, (r6)+
+    sob     r4, sspiex_arr
+    rts     pc
 
 
 # 
@@ -96,6 +147,57 @@ ___sys_sspisend_arr:
     mov     18(sp), r4              # preset array length
     mov     16(sp), r5              # preset array startaddress
     jsr     pc, sspisend_arr
+    mov     (sp)+, r5
+    mov     (sp)+, r4
+    mov     (sp)+, r3
+    mov     (sp)+, r2
+    mov     (sp)+, r1
+    mov     (sp)+, r0
+    rts     pc
+
+
+#
+# C-callable __sys_sspireceive_arr
+#
+___sys_sspireceive_arr:
+    mov     r0, -(sp)
+    mov     r1, -(sp)
+    mov     r2, -(sp)
+    mov     r3, -(sp)
+    mov     r4, -(sp)
+    mov     r5, -(sp)
+    mov     r6, -(sp)
+    mov     14(sp), r3              # preset mosiport address
+    mov     18(sp), r4              # preset array length
+    mov     16(sp), r5              # preset array startaddress
+    jsr     pc, sspireceive_arr
+    mov     (sp)+, r6
+    mov     (sp)+, r5
+    mov     (sp)+, r4
+    mov     (sp)+, r3
+    mov     (sp)+, r2
+    mov     (sp)+, r1
+    mov     (sp)+, r0
+    rts     pc
+
+
+#
+# C-callable __sys_sspiex_arr
+#
+___sys_sspiex_arr:
+    mov     r0, -(sp)
+    mov     r1, -(sp)
+    mov     r2, -(sp)
+    mov     r3, -(sp)
+    mov     r4, -(sp)
+    mov     r5, -(sp)
+    mov     r6, -(sp)
+    mov     14(sp), r3              # preset mosiport address
+    mov     20(sp), r4              # preset array length
+    mov     16(sp), r5              # preset src array startaddress
+    mov     18(sp), r6              # preset dst array startaddress
+    jsr     pc, sspiex_arr
+    mov     (sp)+, r6
     mov     (sp)+, r5
     mov     (sp)+, r4
     mov     (sp)+, r3
